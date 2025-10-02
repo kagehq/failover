@@ -1,6 +1,6 @@
-# Failover Proxy
+# Failover
 
-A ttiny reverse proxy that sits in front of your app or API and makes downtime invisible. It routes all traffic to your primary service, fails over instantly to a backup when things break, and then fails back automatically when your primary recovers. No SDKs, no rewrites, just point DNS and sleep better.
+A tiny reverse proxy that sits in front of your app or API and makes downtime invisible. It routes all traffic to your primary service, fails over instantly to a backup when things break, and then fails back automatically when your primary recovers. No SDKs, no rewrites, just point DNS and sleep better.
 
 ## Why This Exists
 
@@ -23,7 +23,7 @@ Your users keep seeing your site. You keep your SLA. Downtime becomes invisible.
 
 ## Quick Start
 
-### Run from source in one line:
+### Run from source:
 
 ```bash
 cargo run --release -- \
@@ -39,7 +39,7 @@ cargo run --release -- \
 - Auto-recovers back to primary when healthy.
 
 
-### Run from Docker in one line:
+### Run from Docker:
 
 #### 1. Download or Run
 
@@ -56,22 +56,22 @@ docker run --rm -p 8080:8080 failover-proxy:latest \
 That's it — no config files, no setup. The container runs, and traffic is proxied with health-check failover baked in.  
 
 #### 2. Configure
-	•	Primary = their live service (app, API, site).
-	•	Backup = static copy, alternate region, cached mirror, even a “sorry page.”
-	•	Configured via flags or a YAML file.
+- Primary = their live service (app, API, site).
+-  Backup = static copy, alternate region, cached mirror, even a “sorry page.”
+- Configured via flags or a YAML file.
 
 #### 3. Point DNS
-	•	They point myapp.com (or a subdomain like app.mycompany.com) to the proxy.
-	•	From then on, all requests hit Failover Proxy first.
+- They point myapp.com (or a subdomain like app.mycompany.com) to the proxy.
+- From then on, all requests hit Failover Proxy first.
 
 #### 4. Automatic Failover
-	•	While healthy: traffic → primary.
-	•	If health checks fail 3x in a row (configurable): traffic → backup.
-	•	While failing: proxy keeps checking primary in the background.
-	•	After 2x successful health checks: traffic → primary again.
+- While healthy: traffic → primary.
+- If health checks fail 3x in a row (configurable): traffic → backup.
+- While failing: proxy keeps checking primary in the background.
+- After 2x successful health checks: traffic → primary again.
 
 #### 5. Observe
-	•	Check http://proxy:8080/__failover/state to see:
+- Check `http://proxy:8080/__failover/state` to see:
 
 ```json
   { "on_backup": true, "since_unix": 1738512461, "primary": "...", "backup": "..." }
@@ -145,12 +145,12 @@ Run the comprehensive test suite:
 ```
 
 This tests:
-- ✅ **Basic Functionality**: Primary routing, automatic failover, recovery
-- ✅ **Health Endpoints**: Health and state endpoint validation
-- ✅ **HTTP Methods**: GET, POST, PUT, DELETE request handling
-- ✅ **Request Processing**: Body handling and header forwarding
-- ✅ **Configuration**: JSON logging and config file loading
-- ✅ **Production Readiness**: All edge cases and error scenarios
+- **Basic Functionality**: Primary routing, automatic failover, recovery
+- **Health Endpoints**: Health and state endpoint validation
+- **HTTP Methods**: GET, POST, PUT, DELETE request handling
+- **Request Processing**: Body handling and header forwarding
+- **Configuration**: JSON logging and config file loading
+- **Production Readiness**: All edge cases and error scenarios
 
 
 ## License
@@ -163,5 +163,4 @@ This project is licensed under the FSL-1.1-MIT License. See the LICENSE file for
 2. Create a feature branch
 3. Make your changes
 4. Add tests
-5. Run `make test`
-6. Submit a pull request
+5. Submit a pull request

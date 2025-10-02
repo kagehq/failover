@@ -11,15 +11,34 @@ pkill -f "python3.*http.server" 2>/dev/null || true
 # Build
 cargo build --release >/dev/null
 
-# Create test files
-TMP="$(mktemp -d)"
-mkdir -p "$TMP/primary"
-echo "PRIMARY OK" > "$TMP/primary/index.html"
+# Create a simple test server that returns "PRIMARY OK"
+cat > /tmp/test_server.py << 'EOF'
+#!/usr/bin/env python3
+import http.server
+import socketserver
+import sys
+
+class TestHandler(http.server.BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/plain')
+        self.end_headers()
+        self.wfile.write(b'PRIMARY OK')
+    
+    def log_message(self, format, *args):
+        pass
+
+if __name__ == "__main__":
+    port = int(sys.argv[1])
+    with socketserver.TCPServer(("127.0.0.1", port), TestHandler) as httpd:
+        httpd.serve_forever()
+EOF
+
+chmod +x /tmp/test_server.py
 
 # Start server
-cd "$TMP/primary" && python3 -m http.server 9901 --bind 127.0.0.1 >/dev/null 2>&1 &
+python3 /tmp/test_server.py 9901 >/dev/null 2>&1 &
 P1=$!
-cd /Users/dantelex/failover
 
 sleep 1
 
@@ -64,4 +83,4 @@ echo "🚀 Failover-proxy is working!"
 
 # Silent cleanup
 kill $P_PROXY $P1 2>/dev/null || true
-rm -rf "$TMP" 2>/dev/null || true
+rm -f /tmp/test_server.py 2>/dev/null || true
