@@ -32,6 +32,14 @@ Download the latest release for your platform:
 curl -L https://github.com/kagehq/failover/releases/latest/download/failover-linux-x86_64 -o failover
 chmod +x failover
 
+# Linux ARM64
+curl -L https://github.com/kagehq/failover/releases/latest/download/failover-linux-aarch64 -o failover
+chmod +x failover
+
+# macOS x86_64 (Intel)
+curl -L https://github.com/kagehq/failover/releases/latest/download/failover-macos-x86_64 -o failover
+chmod +x failover
+
 # macOS ARM64 (Apple Silicon)
 curl -L https://github.com/kagehq/failover/releases/latest/download/failover-macos-aarch64 -o failover
 chmod +x failover
