@@ -83,9 +83,7 @@ async fn main() -> anyhow::Result<()> {
 
     let listen_addr: SocketAddr = args.listen.parse()?;
 
-    let client = Client::builder()
-        .timeout(Duration::from_secs(30))
-        .build()?;
+    let client = Client::builder().timeout(Duration::from_secs(30)).build()?;
 
     let app_state = AppState {
         primary: args.primary.clone(),
@@ -115,10 +113,7 @@ async fn main() -> anyhow::Result<()> {
         .route("/", any(proxy_handler))
         .route("/__failover/health", axum::routing::get(health_handler))
         .route("/__failover/state", axum::routing::get(state_handler))
-        .layer(
-            ServiceBuilder::new()
-                .layer(RequestBodyLimitLayer::new(max_body_bytes))
-        )
+        .layer(ServiceBuilder::new().layer(RequestBodyLimitLayer::new(max_body_bytes)))
         .with_state(app_state);
 
     info!("Starting failover proxy on {}", listen_addr);
@@ -139,7 +134,7 @@ async fn state_handler(State(state): State<AppState>) -> axum::Json<serde_json::
     let is_primary_healthy = state.is_primary_healthy.load(Ordering::Relaxed);
     let fail_count = state.fail_count.load(Ordering::Relaxed);
     let recover_count = state.recover_count.load(Ordering::Relaxed);
-    
+
     axum::Json(serde_json::json!({
         "on_backup": !is_primary_healthy,
         "primary": state.primary,
@@ -177,7 +172,10 @@ async fn check_health(state: &AppState, args: &Args) {
                 if fail_count >= args.fail_threshold {
                     state.is_primary_healthy.store(false, Ordering::Relaxed);
                     state.recover_count.store(0, Ordering::Relaxed);
-                    warn!("Primary failed ({}), switching to backup: {}", fail_count, e);
+                    warn!(
+                        "Primary failed ({}), switching to backup: {}",
+                        fail_count, e
+                    );
                 }
             }
         }
@@ -217,7 +215,8 @@ async fn proxy_handler(
         Err(_) => return Err(StatusCode::BAD_REQUEST),
     };
 
-    let mut request_builder = state.client
+    let mut request_builder = state
+        .client
         .request(method, &target_uri)
         .body(body.to_vec());
 
@@ -240,7 +239,7 @@ async fn proxy_handler(
             };
 
             let mut response_builder = Response::builder().status(status);
-            
+
             // Copy response headers
             for (name, value) in headers.iter() {
                 if !is_hop_by_hop_header(name) {
@@ -263,10 +262,11 @@ async fn proxy_handler(
 
 fn build_target_uri(base: &str, original_uri: &Uri) -> anyhow::Result<String> {
     let base_url = Url::parse(base)?;
-    let path_and_query = original_uri.path_and_query()
+    let path_and_query = original_uri
+        .path_and_query()
         .map(|pq| pq.as_str())
         .unwrap_or("/");
-    
+
     let target_url = base_url.join(path_and_query)?;
     Ok(target_url.to_string())
 }
