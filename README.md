@@ -28,23 +28,14 @@ Your users keep seeing your site. You keep your SLA. Downtime becomes invisible.
 Download the latest release for your platform:
 
 ```bash
-# Linux x86_64
-curl -L https://github.com/kagehq/failover/releases/latest/download/failover-linux-x86_64 -o failover
+# Linux & macOS (choose your architecture)
+curl -L https://github.com/kagehq/failover/releases/latest/download/failover-linux-x86_64 -o failover      # Linux x86_64
+curl -L https://github.com/kagehq/failover/releases/latest/download/failover-linux-aarch64 -o failover    # Linux ARM64
+curl -L https://github.com/kagehq/failover/releases/latest/download/failover-macos-x86_64 -o failover     # macOS Intel
+curl -L https://github.com/kagehq/failover/releases/latest/download/failover-macos-aarch64 -o failover    # macOS Apple Silicon
 chmod +x failover
 
-# Linux ARM64
-curl -L https://github.com/kagehq/failover/releases/latest/download/failover-linux-aarch64 -o failover
-chmod +x failover
-
-# macOS x86_64 (Intel)
-curl -L https://github.com/kagehq/failover/releases/latest/download/failover-macos-x86_64 -o failover
-chmod +x failover
-
-# macOS ARM64 (Apple Silicon)
-curl -L https://github.com/kagehq/failover/releases/latest/download/failover-macos-aarch64 -o failover
-chmod +x failover
-
-# Windows x86_64
+# Windows
 curl -L https://github.com/kagehq/failover/releases/latest/download/failover-windows-x86_64.exe -o failover.exe
 ```
 
