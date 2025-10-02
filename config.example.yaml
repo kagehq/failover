@@ -1,0 +1,8 @@
+listen: "0.0.0.0:8080"
+primary: "https://primary.example.com"
+backup: "https://backup-bucket.s3.amazonaws.com"
+check_interval: "2s"
+fail_threshold: 3
+recover_threshold: 2
+max_body: "10MB"
+json_logs: false

@@ -1,0 +1,8 @@
+listen: "127.0.0.1:8081"
+primary: "http://127.0.0.1:9501"
+backup: "http://127.0.0.1:9502"
+check_interval: "1s"
+fail_threshold: 1
+recover_threshold: 1
+max_body: "1MB"
+json_logs: false

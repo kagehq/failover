@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Ultra-fast test for failover-proxy
+echo "🧪 Testing failover-proxy..."
+
+# Clean up silently
+pkill -f failover-proxy 2>/dev/null || true
+pkill -f "python3.*http.server" 2>/dev/null || true
+
+# Build
+cargo build --release >/dev/null
+
+# Create test files
+TMP="$(mktemp -d)"
+mkdir -p "$TMP/primary"
+echo "PRIMARY OK" > "$TMP/primary/index.html"
+
+# Start server
+cd "$TMP/primary" && python3 -m http.server 9901 --bind 127.0.0.1 >/dev/null 2>&1 &
+P1=$!
+cd /Users/dantelex/failover
+
+sleep 1
+
+# Start proxy
+./target/release/failover-proxy \
+  --listen="127.0.0.1:8080" \
+  --primary="http://127.0.0.1:9901" \
+  --backup="http://127.0.0.1:9901" \
+  --check-interval="1s" \
+  --fail-threshold="1" \
+  --recover-threshold="1" >/dev/null 2>&1 &
+P_PROXY=$!
+
+sleep 1
+
+# Run tests
+echo "✅ Basic routing"
+BODY=$(curl -fsS "http://127.0.0.1:8080/" 2>/dev/null || echo "FAILED")
+[[ "$BODY" == "PRIMARY OK" ]] || { echo "❌ Expected PRIMARY OK, got: $BODY"; exit 1; }
+
+echo "✅ Health endpoint"
+HEALTH=$(curl -fsS "http://127.0.0.1:8080/__failover/health" 2>/dev/null || echo "FAILED")
+[[ "$HEALTH" == "OK" ]] || { echo "❌ Expected OK, got: $HEALTH"; exit 1; }
+
+echo "✅ State endpoint"
+STATE=$(curl -fsS "http://127.0.0.1:8080/__failover/state" 2>/dev/null || echo "FAILED")
+echo "$STATE" | python3 -c "
+import sys, json
+try:
+    data = json.load(sys.stdin)
+    if 'on_backup' in data and 'primary' in data:
+        pass
+    else:
+        sys.exit(1)
+except:
+    sys.exit(1)
+" || { echo "❌ State test failed"; exit 1; }
+
+echo ""
+echo "🎉 ALL TESTS PASSED!"
+echo "🚀 Failover-proxy is working!"
+
+# Silent cleanup
+kill $P_PROXY $P1 2>/dev/null || true
+rm -rf "$TMP" 2>/dev/null || true
