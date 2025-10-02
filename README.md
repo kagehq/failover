@@ -25,7 +25,13 @@ Your users keep seeing your site. You keep your SLA. Downtime becomes invisible.
 
 ### Download Pre-built Binary
 
-Download the latest release for your platform:
+**One-line installer (auto-detects your platform):**
+
+```bash
+curl -L https://raw.githubusercontent.com/kagehq/failover/main/install.sh | bash
+```
+
+**Or download manually for your platform:**
 
 ```bash
 # Linux & macOS (choose your architecture)
