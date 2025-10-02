@@ -21,6 +21,12 @@ If it happens to them, it can happen to you.
 
 Your users keep seeing your site. You keep your SLA. Downtime becomes invisible.
 
+## Community & Support
+
+Join our Discord community for discussions, support, and updates:
+
+[![Discord](https://img.shields.io/badge/Discord-Join%20our%20community-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/KqdBcqRk5E)
+
 ## Quick Start
 
 ### Download Pre-built Binary
