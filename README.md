@@ -29,15 +29,15 @@ Download the latest release for your platform:
 
 ```bash
 # Linux x86_64
-curl -L https://github.com/yourusername/failover/releases/latest/download/failover-linux-x86_64 -o failover
+curl -L https://github.com/kagehq/failover/releases/latest/download/failover-linux-x86_64 -o failover
 chmod +x failover
 
 # macOS ARM64 (Apple Silicon)
-curl -L https://github.com/yourusername/failover/releases/latest/download/failover-macos-aarch64 -o failover
+curl -L https://github.com/kagehq/failover/releases/latest/download/failover-macos-aarch64 -o failover
 chmod +x failover
 
 # Windows x86_64
-curl -L https://github.com/yourusername/failover/releases/latest/download/failover-windows-x86_64.exe -o failover.exe
+curl -L https://github.com/kagehq/failover/releases/latest/download/failover-windows-x86_64.exe -o failover.exe
 ```
 
 Then run:
