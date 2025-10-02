@@ -187,18 +187,39 @@ jobs:
 
       - name: Create release archive
         run: |
-          # Rename artifacts to expected names
-          mv release/failover-linux-x86_64/failover release/failover-linux-x86_64
-          mv release/failover-linux-aarch64/failover release/failover-linux-aarch64
-          mv release/failover-windows-x86_64.exe/failover.exe release/failover-windows-x86_64.exe
-          mv release/failover-macos-x86_64/failover release/failover-macos-x86_64
-          mv release/failover-macos-aarch64/failover release/failover-macos-aarch64
+          # Debug: List what we have
+          echo "Contents of release directory:"
+          find release -type f -exec ls -la {} \;
+          
+          # Find and move binaries to correct locations
+          find release -name "failover" -type f -exec mv {} release/failover-linux-x86_64 \; 2>/dev/null || true
+          find release -name "failover" -type f -exec mv {} release/failover-linux-aarch64 \; 2>/dev/null || true
+          find release -name "failover" -type f -exec mv {} release/failover-macos-x86_64 \; 2>/dev/null || true
+          find release -name "failover" -type f -exec mv {} release/failover-macos-aarch64 \; 2>/dev/null || true
+          find release -name "failover.exe" -type f -exec mv {} release/failover-windows-x86_64.exe \; 2>/dev/null || true
+          
+          # Alternative approach: copy from subdirectories if they exist
+          if [ -f "release/failover-linux-x86_64/failover" ]; then
+            cp release/failover-linux-x86_64/failover release/failover-linux-x86_64
+          fi
+          if [ -f "release/failover-linux-aarch64/failover" ]; then
+            cp release/failover-linux-aarch64/failover release/failover-linux-aarch64
+          fi
+          if [ -f "release/failover-macos-x86_64/failover" ]; then
+            cp release/failover-macos-x86_64/failover release/failover-macos-x86_64
+          fi
+          if [ -f "release/failover-macos-aarch64/failover" ]; then
+            cp release/failover-macos-aarch64/failover release/failover-macos-aarch64
+          fi
+          if [ -f "release/failover-windows-x86_64.exe/failover.exe" ]; then
+            cp release/failover-windows-x86_64.exe/failover.exe release/failover-windows-x86_64.exe
+          fi
           
           # Make executables
-          chmod +x release/failover-linux-x86_64
-          chmod +x release/failover-linux-aarch64
-          chmod +x release/failover-macos-x86_64
-          chmod +x release/failover-macos-aarch64
+          chmod +x release/failover-linux-x86_64 2>/dev/null || true
+          chmod +x release/failover-linux-aarch64 2>/dev/null || true
+          chmod +x release/failover-macos-x86_64 2>/dev/null || true
+          chmod +x release/failover-macos-aarch64 2>/dev/null || true
 
       - name: Create checksums
         run: |
