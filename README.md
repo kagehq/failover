@@ -47,13 +47,13 @@ Build and run the Docker container with instant failover from `primary` to `back
 
 ```bash
 # Build the Docker image
-docker build -t failover-proxy:latest .
+docker build -t failover:latest .
 
 # Run the proxy
-docker run --rm -p 8080:8080 failover-proxy:latest \
+docker run --rm -p 8080:8080 failover:latest \
   --primary=https://myapp.com --backup=https://myapp-backup.s3.amazonaws.com
 ```
-That's it — no config files, no setup. The container runs, and traffic is proxied with health-check failover baked in.  
+That's it, no config files, no setup. The container runs, and traffic is proxied with health-check failover baked in.  
 
 #### 2. Configure
 - Primary = their live service (app, API, site).
@@ -100,7 +100,7 @@ All options can be set via command-line flags or a YAML config file:
 ### Command Line Options
 
 ```bash
-failover-proxy --help
+failover --help
 ```
 
 **Required:**
@@ -130,7 +130,7 @@ max_body: "10MB"
 json_logs: false
 ```
 
-Then run: `failover-proxy --config config.yaml`
+Then run: `failover --config config.yaml`
 
 ## Monitoring Endpoints
 

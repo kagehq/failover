@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Ultra-fast test for failover-proxy
-echo "🧪 Testing failover-proxy..."
+# Ultra-fast test for failover
+echo "🧪 Testing failover..."
 
-# Clean up silently
-pkill -f failover-proxy 2>/dev/null || true
+# Clean up everything
+pkill -f failover 2>/dev/null || true
 pkill -f "python3.*http.server" 2>/dev/null || true
+pkill -f "python3.*test_server" 2>/dev/null || true
+sleep 1
 
 # Build
 cargo build --release >/dev/null
 
-# Create a simple test server that returns "PRIMARY OK"
+# Create a simple test server
 cat > /tmp/test_server.py << 'EOF'
 #!/usr/bin/env python3
 import http.server
@@ -36,17 +38,25 @@ EOF
 
 chmod +x /tmp/test_server.py
 
+# Find a free port
+for port in 10001 10002 10003 10004 10005; do
+    if ! lsof -i :$port >/dev/null 2>&1; then
+        TEST_PORT=$port
+        break
+    fi
+done
+
 # Start server
-python3 /tmp/test_server.py 9901 >/dev/null 2>&1 &
+python3 /tmp/test_server.py $TEST_PORT >/dev/null 2>&1 &
 P1=$!
 
 sleep 1
 
 # Start proxy
-./target/release/failover-proxy \
+./target/release/failover \
   --listen="127.0.0.1:8080" \
-  --primary="http://127.0.0.1:9901" \
-  --backup="http://127.0.0.1:9901" \
+  --primary="http://127.0.0.1:$TEST_PORT" \
+  --backup="http://127.0.0.1:$TEST_PORT" \
   --check-interval="1s" \
   --fail-threshold="1" \
   --recover-threshold="1" >/dev/null 2>&1 &
@@ -79,7 +89,7 @@ except:
 
 echo ""
 echo "🎉 ALL TESTS PASSED!"
-echo "🚀 Failover-proxy is working!"
+echo "🚀 Failover is working!"
 
 # Silent cleanup
 kill $P_PROXY $P1 2>/dev/null || true

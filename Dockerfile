@@ -11,6 +11,6 @@ FROM alpine:3.20
 RUN adduser -D -H app
 USER app
 WORKDIR /app
-COPY --from=build /src/target/x86_64-unknown-linux-musl/release/failover-proxy /usr/local/bin/failover-proxy
+COPY --from=build /src/target/x86_64-unknown-linux-musl/release/failover /usr/local/bin/failover
 EXPOSE 8080
-ENTRYPOINT ["/usr/local/bin/failover-proxy"]
+ENTRYPOINT ["/usr/local/bin/failover"]
