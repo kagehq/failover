@@ -187,6 +187,14 @@ jobs:
 
       - name: Create release archive
         run: |
+          # Rename artifacts to expected names
+          mv release/failover-linux-x86_64/failover release/failover-linux-x86_64
+          mv release/failover-linux-aarch64/failover release/failover-linux-aarch64
+          mv release/failover-windows-x86_64.exe/failover.exe release/failover-windows-x86_64.exe
+          mv release/failover-macos-x86_64/failover release/failover-macos-x86_64
+          mv release/failover-macos-aarch64/failover release/failover-macos-aarch64
+          
+          # Make executables
           chmod +x release/failover-linux-x86_64
           chmod +x release/failover-linux-aarch64
           chmod +x release/failover-macos-x86_64
