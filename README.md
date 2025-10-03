@@ -6,10 +6,10 @@ A tiny reverse proxy that sits in front of your app or API and makes downtime in
 
 ## What Failover Does
 
-**Auto Incident Reports** - Get Slack/Discord notifications with detailed timelines when failover happens. Zero effort post-mortems.
-**30-Second Deploy** - One-click deployment to Render, Railway, Fly.io. No DevOps knowledge required.
-**Instant Failover** - Sub-second switching to backup. Your users never see downtime.
-**Zero Config** - Works out of the box. Just point it at your primary and backup URLs.
+- **Auto Incident Reports** - Get Slack/Discord notifications with detailed timelines when failover happens. Zero effort post-mortems.
+- **30-Second Deploy** - One-click deployment to Render, Railway, Fly.io. No DevOps knowledge required.
+- **Instant Failover** - Sub-second switching to backup. Your users never see downtime.
+- **Zero Config** - Works out of the box. Just point it at your primary and backup URLs.
 
 Your users keep seeing your site. You keep your SLA. Downtime becomes invisible.
 
