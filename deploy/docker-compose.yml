@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  failover:
+    build: .
+    ports:
+      - "${PORT:-8080}:8080"
+    environment:
+      - PRIMARY_URL=${PRIMARY_URL}
+      - BACKUP_URL=${BACKUP_URL}
+      - WEBHOOK_URL=${WEBHOOK_URL:-}
+      - WEBHOOK_FORMAT=${WEBHOOK_FORMAT:-slack}
+      - CHECK_INTERVAL=${CHECK_INTERVAL:-2s}
+      - FAIL_THRESHOLD=${FAIL_THRESHOLD:-3}
+      - RECOVER_THRESHOLD=${RECOVER_THRESHOLD:-2}
+      - MAX_BODY=${MAX_BODY:-10MB}
+      - JSON_LOGS=${JSON_LOGS:-false}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/__failover/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - failover-network
+
+networks:
+  failover-network:
+    driver: bridge
+

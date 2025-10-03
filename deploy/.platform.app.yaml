@@ -1,0 +1,30 @@
+# Platform.sh configuration
+name: failover
+type: "golang:1.21"
+
+disk: 512
+
+web:
+  commands:
+    start: "./failover --primary=$PRIMARY_URL --backup=$BACKUP_URL --listen=0.0.0.0:$PORT"
+  
+  locations:
+    "/":
+      passthru: true
+
+hooks:
+  build: |
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    . $HOME/.cargo/env
+    cargo build --release
+    cp target/release/failover ./failover
+
+relationships:
+  
+variables:
+  env:
+    PRIMARY_URL: ""
+    BACKUP_URL: ""
+    WEBHOOK_URL: ""
+    PORT: "8080"
+

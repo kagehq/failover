@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "Dockerfile",
+      "use": "@vercel/static-build"
+    }
+  ],
+  "env": {
+    "PRIMARY_URL": "",
+    "BACKUP_URL": "",
+    "WEBHOOK_URL": "",
+    "WEBHOOK_FORMAT": "slack"
+  }
+}
+

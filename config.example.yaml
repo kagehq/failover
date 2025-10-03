@@ -6,3 +6,7 @@ fail_threshold: 3
 recover_threshold: 2
 max_body: "10MB"
 json_logs: false
+
+# Auto Incident Reports (optional)
+# webhook_url: "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+# webhook_format: "slack"  # Options: "slack" or "discord"

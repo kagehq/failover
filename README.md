@@ -27,6 +27,8 @@ Join our Discord community for discussions, support, and updates:
 
 [![Discord](https://img.shields.io/badge/Discord-Join%20our%20community-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/KqdBcqRk5E)
 
+
+
 ## Quick Start
 
 ### Download Pre-built Binary
@@ -126,6 +128,110 @@ AFTER Failover Proxy
    Primary App (healthy ✅)     Backup (S3/CloudFront, etc.)
          (Down = traffic auto-fails here ✅)
 
+## Auto Incident Reports ✅
+
+Failover automatically sends detailed incident reports when failover events occur. Get notified instantly on Slack, Discord, or any webhook-compatible service when your primary service fails or recovers.
+
+### Features
+- 🚨 **Instant Alerts**: Real-time notifications when failover occurs
+- ✅ **Recovery Notifications**: Get notified when primary service recovers
+- ⏱️ **Downtime Tracking**: Automatically calculates and reports downtime duration
+- 📊 **Rich Details**: Includes fail count, timestamps, URLs, and error messages
+- 🎨 **Formatted Messages**: Beautiful, color-coded notifications for Slack and Discord
+
+### Quick Setup
+
+**Slack:**
+```bash
+failover \
+  --primary=https://myapp.com \
+  --backup=https://myapp-backup.s3.amazonaws.com \
+  --webhook-url=https://hooks.slack.com/services/YOUR/WEBHOOK/URL \
+  --webhook-format=slack
+```
+
+**Discord:**
+```bash
+failover \
+  --primary=https://myapp.com \
+  --backup=https://myapp-backup.s3.amazonaws.com \
+  --webhook-url=https://discord.com/api/webhooks/YOUR/WEBHOOK/URL \
+  --webhook-format=discord
+```
+
+**Or via config file:**
+```yaml
+webhook_url: "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+webhook_format: "slack"  # or "discord"
+```
+
+### Notification Example
+
+When failover occurs, you'll receive a notification like:
+```
+🚨 Failover Incident Report
+Event: FAILOVER
+Timestamp: 2025-10-03T10:30:45Z
+Primary: https://myapp.com
+Backup: https://myapp-backup.s3.amazonaws.com
+Details: Primary service failed after 3 consecutive health check failures.
+```
+
+When primary recovers:
+```
+✅ Failover Incident Report
+Event: RECOVERY
+Timestamp: 2025-10-03T10:45:30Z
+Duration: 894 seconds
+Details: Primary service has recovered and is now healthy. Traffic restored to primary.
+```
+
+### Setting Up Webhooks
+
+**Slack:**
+1. Go to https://api.slack.com/messaging/webhooks
+2. Create a new webhook for your workspace
+3. Copy the webhook URL
+4. Use with `--webhook-url` flag
+
+**Discord:**
+1. Go to Server Settings → Integrations → Webhooks
+2. Create a new webhook
+3. Copy the webhook URL
+4. Use with `--webhook-url` and `--webhook-format=discord`
+
+
+## One-Click Deploy ✅
+
+Deploy Failover to production in minutes with zero configuration hassle.
+
+### Railway (Recommended)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/failover)
+
+Click the button above, set your `PRIMARY_URL` and `BACKUP_URL` environment variables, and deploy instantly.
+
+### Fly.io
+```bash
+flyctl launch
+flyctl secrets set PRIMARY_URL=https://yourapp.com BACKUP_URL=https://backup.s3.amazonaws.com
+flyctl deploy
+```
+
+### Render
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
+
+**See [deploy/DEPLOY.md](deploy/DEPLOY.md) for complete deployment guides including:**
+
+### Quick Deploy Script
+The script will guide you through deploying to your chosen platform with automatic configuration.
+
+```bash
+# Interactive deployment wizard
+cd deploy
+chmod +x quick-deploy.sh
+./quick-deploy.sh
+```
+
 ## Configuration
 
 All options can be set via command-line flags or a YAML config file:
@@ -148,6 +254,8 @@ failover --help
 - `--max-body <SIZE>` - Max request body size (default: `10MB`)
 - `--config <FILE>` - Config file path
 - `--json-logs` - Enable JSON logging
+- `--webhook-url <URL>` - Webhook URL for incident notifications (Slack, Discord, etc.)
+- `--webhook-format <FORMAT>` - Webhook format: `slack` or `discord` (default: `slack`)
 
 ### Example Config File
 Create `config.yaml`:
@@ -161,6 +269,10 @@ fail_threshold: 3
 recover_threshold: 2
 max_body: "10MB"
 json_logs: false
+
+# Auto Incident Reports (optional)
+webhook_url: "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+webhook_format: "slack"  # or "discord"
 ```
 
 Then run: `failover --config config.yaml`

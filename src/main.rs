@@ -6,6 +6,7 @@ use axum::{
     routing::any,
     Router,
 };
+use chrono::{DateTime, Utc};
 use clap::Parser;
 use http::header;
 use reqwest::Client;
@@ -53,6 +54,12 @@ struct Args {
 
     #[arg(long, help = "Enable JSON logging")]
     json_logs: bool,
+
+    #[arg(long, help = "Webhook URL for incident notifications (Slack, Discord, etc.)")]
+    webhook_url: Option<String>,
+
+    #[arg(long, help = "Webhook notification format (slack or discord)")]
+    webhook_format: Option<String>,
 }
 
 #[derive(Clone)]
@@ -63,6 +70,18 @@ struct AppState {
     is_primary_healthy: Arc<AtomicBool>,
     fail_count: Arc<std::sync::atomic::AtomicU32>,
     recover_count: Arc<std::sync::atomic::AtomicU32>,
+    failover_timestamp: Arc<tokio::sync::RwLock<Option<DateTime<Utc>>>>,
+}
+
+#[derive(serde::Serialize)]
+struct IncidentReport {
+    event_type: String,
+    timestamp: String,
+    primary_url: String,
+    backup_url: String,
+    fail_count: u32,
+    duration: Option<String>,
+    message: String,
 }
 
 #[tokio::main]
@@ -92,6 +111,7 @@ async fn main() -> anyhow::Result<()> {
         is_primary_healthy: Arc::new(AtomicBool::new(true)),
         fail_count: Arc::new(std::sync::atomic::AtomicU32::new(0)),
         recover_count: Arc::new(std::sync::atomic::AtomicU32::new(0)),
+        failover_timestamp: Arc::new(tokio::sync::RwLock::new(None)),
     };
 
     // Start health check task
@@ -160,7 +180,35 @@ async fn check_health(state: &AppState, args: &Args) {
                     state.is_primary_healthy.store(true, Ordering::Relaxed);
                     state.fail_count.store(0, Ordering::Relaxed);
                     state.recover_count.store(0, Ordering::Relaxed);
+                    
+                    // Calculate downtime duration
+                    let duration = {
+                        let timestamp = state.failover_timestamp.read().await;
+                        timestamp.map(|start| {
+                            let duration = Utc::now().signed_duration_since(start);
+                            format!("{} seconds", duration.num_seconds())
+                        })
+                    };
+                    
                     info!("Primary recovered, switching back");
+                    
+                    // Send recovery notification
+                    let report = IncidentReport {
+                        event_type: "recovery".to_string(),
+                        timestamp: Utc::now().to_rfc3339(),
+                        primary_url: state.primary.clone(),
+                        backup_url: state.backup.clone(),
+                        fail_count: 0,
+                        duration,
+                        message: format!(
+                            "Primary service {} has recovered and is now healthy. Traffic restored to primary.",
+                            state.primary
+                        ),
+                    };
+                    send_incident_notification(state, args, &report).await;
+                    
+                    // Clear failover timestamp
+                    *state.failover_timestamp.write().await = None;
                 }
             } else {
                 state.fail_count.store(0, Ordering::Relaxed);
@@ -172,10 +220,29 @@ async fn check_health(state: &AppState, args: &Args) {
                 if fail_count >= args.fail_threshold {
                     state.is_primary_healthy.store(false, Ordering::Relaxed);
                     state.recover_count.store(0, Ordering::Relaxed);
+                    
+                    // Record failover timestamp
+                    *state.failover_timestamp.write().await = Some(Utc::now());
+                    
                     warn!(
                         "Primary failed ({}), switching to backup: {}",
                         fail_count, e
                     );
+                    
+                    // Send failover notification
+                    let report = IncidentReport {
+                        event_type: "failover".to_string(),
+                        timestamp: Utc::now().to_rfc3339(),
+                        primary_url: state.primary.clone(),
+                        backup_url: state.backup.clone(),
+                        fail_count,
+                        duration: None,
+                        message: format!(
+                            "Primary service {} failed after {} consecutive health check failures. Traffic switched to backup: {}. Error: {}",
+                            state.primary, fail_count, state.backup, e
+                        ),
+                    };
+                    send_incident_notification(state, args, &report).await;
                 }
             }
         }
@@ -305,4 +372,134 @@ fn parse_size(size_str: &str) -> anyhow::Result<usize> {
     };
 
     Ok(number * multiplier)
+}
+
+async fn send_incident_notification(
+    state: &AppState,
+    args: &Args,
+    report: &IncidentReport,
+) {
+    if let Some(webhook_url) = &args.webhook_url {
+        let format = args.webhook_format.as_deref().unwrap_or("slack");
+        
+        let payload = match format {
+            "discord" => format_discord_message(report),
+            _ => format_slack_message(report),
+        };
+
+        match state.client.post(webhook_url).json(&payload).send().await {
+            Ok(response) => {
+                if response.status().is_success() {
+                    info!("Incident notification sent successfully");
+                } else {
+                    warn!("Failed to send incident notification: {}", response.status());
+                }
+            }
+            Err(e) => {
+                error!("Error sending incident notification: {}", e);
+            }
+        }
+    }
+}
+
+fn format_slack_message(report: &IncidentReport) -> serde_json::Value {
+    let color = if report.event_type == "failover" {
+        "#ff0000" // Red for failover
+    } else {
+        "#00ff00" // Green for recovery
+    };
+
+    let emoji = if report.event_type == "failover" {
+        "🚨"
+    } else {
+        "✅"
+    };
+
+    serde_json::json!({
+        "attachments": [{
+            "color": color,
+            "title": format!("{} Failover Incident Report", emoji),
+            "fields": [
+                {
+                    "title": "Event",
+                    "value": report.event_type.to_uppercase(),
+                    "short": true
+                },
+                {
+                    "title": "Timestamp",
+                    "value": report.timestamp,
+                    "short": true
+                },
+                {
+                    "title": "Primary",
+                    "value": report.primary_url,
+                    "short": true
+                },
+                {
+                    "title": "Backup",
+                    "value": report.backup_url,
+                    "short": true
+                },
+                {
+                    "title": "Details",
+                    "value": report.message,
+                    "short": false
+                }
+            ],
+            "footer": "Failover Proxy",
+            "ts": chrono::Utc::now().timestamp()
+        }]
+    })
+}
+
+fn format_discord_message(report: &IncidentReport) -> serde_json::Value {
+    let color = if report.event_type == "failover" {
+        16711680 // Red for failover
+    } else {
+        65280 // Green for recovery
+    };
+
+    let emoji = if report.event_type == "failover" {
+        "🚨"
+    } else {
+        "✅"
+    };
+
+    serde_json::json!({
+        "embeds": [{
+            "title": format!("{} Failover Incident Report", emoji),
+            "color": color,
+            "fields": [
+                {
+                    "name": "Event",
+                    "value": report.event_type.to_uppercase(),
+                    "inline": true
+                },
+                {
+                    "name": "Timestamp",
+                    "value": report.timestamp,
+                    "inline": true
+                },
+                {
+                    "name": "Primary",
+                    "value": report.primary_url,
+                    "inline": false
+                },
+                {
+                    "name": "Backup",
+                    "value": report.backup_url,
+                    "inline": false
+                },
+                {
+                    "name": "Details",
+                    "value": report.message,
+                    "inline": false
+                }
+            ],
+            "footer": {
+                "text": "Failover Proxy"
+            },
+            "timestamp": chrono::Utc::now().to_rfc3339()
+        }]
+    })
 }

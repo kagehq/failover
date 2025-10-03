@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: failover
+    env: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    envVars:
+      - key: PRIMARY_URL
+        sync: false
+      - key: BACKUP_URL
+        sync: false
+      - key: PORT
+        value: 8080
+      - key: WEBHOOK_URL
+        sync: false
+        required: false
+      - key: WEBHOOK_FORMAT
+        value: slack
+        required: false
+    healthCheckPath: /__failover/health
+
