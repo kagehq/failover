@@ -55,7 +55,10 @@ struct Args {
     #[arg(long, help = "Enable JSON logging")]
     json_logs: bool,
 
-    #[arg(long, help = "Webhook URL for incident notifications (Slack, Discord, etc.)")]
+    #[arg(
+        long,
+        help = "Webhook URL for incident notifications (Slack, Discord, etc.)"
+    )]
     webhook_url: Option<String>,
 
     #[arg(long, help = "Webhook notification format (slack or discord)")]
@@ -180,7 +183,7 @@ async fn check_health(state: &AppState, args: &Args) {
                     state.is_primary_healthy.store(true, Ordering::Relaxed);
                     state.fail_count.store(0, Ordering::Relaxed);
                     state.recover_count.store(0, Ordering::Relaxed);
-                    
+
                     // Calculate downtime duration
                     let duration = {
                         let timestamp = state.failover_timestamp.read().await;
@@ -189,9 +192,9 @@ async fn check_health(state: &AppState, args: &Args) {
                             format!("{} seconds", duration.num_seconds())
                         })
                     };
-                    
+
                     info!("Primary recovered, switching back");
-                    
+
                     // Send recovery notification
                     let report = IncidentReport {
                         event_type: "recovery".to_string(),
@@ -206,7 +209,7 @@ async fn check_health(state: &AppState, args: &Args) {
                         ),
                     };
                     send_incident_notification(state, args, &report).await;
-                    
+
                     // Clear failover timestamp
                     *state.failover_timestamp.write().await = None;
                 }
@@ -220,15 +223,15 @@ async fn check_health(state: &AppState, args: &Args) {
                 if fail_count >= args.fail_threshold {
                     state.is_primary_healthy.store(false, Ordering::Relaxed);
                     state.recover_count.store(0, Ordering::Relaxed);
-                    
+
                     // Record failover timestamp
                     *state.failover_timestamp.write().await = Some(Utc::now());
-                    
+
                     warn!(
                         "Primary failed ({}), switching to backup: {}",
                         fail_count, e
                     );
-                    
+
                     // Send failover notification
                     let report = IncidentReport {
                         event_type: "failover".to_string(),
@@ -374,14 +377,10 @@ fn parse_size(size_str: &str) -> anyhow::Result<usize> {
     Ok(number * multiplier)
 }
 
-async fn send_incident_notification(
-    state: &AppState,
-    args: &Args,
-    report: &IncidentReport,
-) {
+async fn send_incident_notification(state: &AppState, args: &Args, report: &IncidentReport) {
     if let Some(webhook_url) = &args.webhook_url {
         let format = args.webhook_format.as_deref().unwrap_or("slack");
-        
+
         let payload = match format {
             "discord" => format_discord_message(report),
             _ => format_slack_message(report),
@@ -392,7 +391,10 @@ async fn send_incident_notification(
                 if response.status().is_success() {
                     info!("Incident notification sent successfully");
                 } else {
-                    warn!("Failed to send incident notification: {}", response.status());
+                    warn!(
+                        "Failed to send incident notification: {}",
+                        response.status()
+                    );
                 }
             }
             Err(e) => {
