@@ -1,6 +1,22 @@
 # Failover
 
-A tiny reverse proxy that sits in front of your app or API and makes downtime invisible. It routes all traffic to your primary service, fails over instantly to a backup when things break, and then fails back automatically when your primary recovers. No SDKs, no rewrites, just point DNS and sleep better.
+**Auto-failover proxy with instant Slack/Discord alerts. Deploy in 30 seconds.**
+
+[![GitHub stars](https://img.shields.io/github/stars/kagehq/failover?style=social)](https://github.com/kagehq/failover)
+[![Discord](https://img.shields.io/badge/Discord-Join%20our%20community-7289DA?style=flat&logo=discord&logoColor=white)](https://discord.gg/KqdBcqRk5E)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
+
+A tiny reverse proxy that sits in front of your app or API and makes downtime invisible. Routes traffic to your primary service, fails over instantly to backup when things break, auto-recovers, and **posts incident reports to Slack/Discord automatically**.
+
+## 🚨 What Makes This Different
+
+**✅ Auto Incident Reports** - Get Slack/Discord notifications with detailed timelines when failover happens. Zero effort post-mortems.
+
+**⚡ 30-Second Deploy** - One-click deployment to Render, Railway, Fly.io. No DevOps knowledge required.
+
+**🔄 Instant Failover** - Sub-second switching to backup. Your users never see downtime.
+
+**🎯 Zero Config** - Works out of the box. Just point it at your primary and backup URLs.
 
 ## Why This Exists
 
