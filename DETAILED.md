@@ -110,7 +110,7 @@ Real problems from the field:
 
 | Aspect | Enterprise HA | Failover |
 |--------|---------------|----------|
-| **Handles ALL scenarios** | ✅ Yes | ❌ No (80% of cases) |
+| **Handles ALL scenarios** | ✅ Yes | ⚠️ No (80% of cases for now) |
 | **Cost** | $50K+/year | $0 (OSS) |
 | **Complexity** | Very High | One command |
 | **Setup Time** | Weeks | 30 seconds |
@@ -128,7 +128,7 @@ Real problems from the field:
 - You absolutely need real-time writes during any failure scenario
 - You have the budget and team to manage complex distributed systems
 
-**The reality:** Most web apps, APIs, and SaaS products don't need enterprise HA. They need "good enough" HA at a price they can afford. That's Failover.
+**The reality:** Most web apps, APIs, and SaaS products don't need enterprise HA. They need "really good" HA at a price they can afford. That's Failover.
 
 ## When to Use Failover
 

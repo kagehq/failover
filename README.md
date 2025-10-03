@@ -39,10 +39,8 @@ curl -L https://raw.githubusercontent.com/kagehq/failover/main/install.sh | bash
 ## What Engineers Are Saying
 
 > "Scaling to distributed failover creates a 'death valley' of reliability due to config errors and interconnect failures."  
-> — **DHH, Basecamp Co-founder**
 
 > "Active-active setups risk race conditions while active-passive causes data loss from replication lag."  
-> — **Raul Junco, System Design Expert**
 
 [Read more industry feedback →](DETAILED.md#what-engineers-are-saying)
 
