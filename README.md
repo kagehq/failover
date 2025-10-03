@@ -62,21 +62,58 @@ Failover: $0 (open source) + uses infrastructure you already have
 
 Real problems from the field:
 
-> "Active-active setups risk race conditions and complexity, while active-passive can lead to downtime and data loss if replication lags. Teams overestimate availability without understanding these trade-offs."  
-> — **Raul Junco, System Design Expert**
+> "Active-active setups risk race conditions and complexity, while active-passive can lead to downtime and data loss if replication lags. Teams overestimate availability without understanding these trade-offs." 
 
-> "Scaling from single-machine to distributed setups spikes outage risks due to config errors and interconnect failures—a 'death valley' in reliability."  
-> — **DHH, Basecamp Co-founder**
+> "Scaling from single-machine to distributed setups spikes outage risks due to config errors and interconnect failures—a 'death valley' in reliability."
 
-> "If a failover playbook fails midway, you're left in a hybrid state (some updated, some not), birthing outages from config drift."  
-> — **Malik Ahmad, DevOps Engineer**
+> "If a failover playbook fails midway, you're left in a hybrid state (some updated, some not), birthing outages from config drift."
 
-> "Multiple simultaneous node failures at scale demand careful replication—otherwise quorum latency or saturation hits hard."  
-> — **Sriram Subramanian, Database Engineer**
+> "Multiple simultaneous node failures at scale demand careful replication—otherwise quorum latency or saturation hits hard." 
 
 **The common theme:** Traditional failover adds complexity that creates NEW failure modes.
 
 **Failover's approach:** Stateless proxy = no replication, no config drift, no race conditions. Just instant routing.
+
+## What Failover Solves (And What It Doesn't)
+
+**✅ Problems Failover SOLVES:**
+- **Race Conditions** - Stateless proxy eliminates active-active coordination complexity
+- **Config Drift** - Single binary, no distributed state to get out of sync
+- **Replication Lag Data Loss** - No replication needed at proxy layer = zero data loss risk
+- **Infrastructure Costs** - Use existing backups (S3, CDN) instead of duplicating everything
+- **Complex Setup** - One command vs. weeks of cluster configuration
+- **Flapping** - Intelligent health checks prevent primary↔backup toggling
+
+**❌ Problems Failover DOESN'T Solve:**
+- **Database-Level HA** - You still need proper DB clustering for stateful data
+- **Real-Time Writes During Failover** - Backup serves read-only/cached content
+- **Sub-10ms Failover** - Proxy adds ~1s switchover (vs. enterprise active-active)
+- **Multi-Region Active-Active** - Single proxy point, not geo-distributed writes
+- **Compliance Requirements** - If you need 99.999% SLA guarantees, use enterprise HA
+
+**The Honest Trade-off:**
+
+| Aspect | Enterprise HA | Failover |
+|--------|---------------|----------|
+| **Handles ALL scenarios** | ✅ Yes | ❌ No (80% of cases) |
+| **Cost** | $50K+/year | $0 (OSS) |
+| **Complexity** | Very High | One command |
+| **Setup Time** | Weeks | 30 seconds |
+| **Good Enough For** | Banks, stock exchanges | Startups, SaaS, APIs, web apps |
+
+**Choose Failover if:**
+- You're a startup/indie hacker without $50K+ for HA infrastructure
+- Your users can tolerate brief read-only mode during primary outages
+- You need HA NOW without weeks of setup
+- "Pretty good" uptime is acceptable (vs. "absolutely perfect")
+
+**Choose Enterprise HA if:**
+- You're a bank, stock exchange, or medical device company
+- You have compliance requirements for 99.999% uptime
+- You absolutely need real-time writes during any failure scenario
+- You have the budget and team to manage complex distributed systems
+
+**The reality:** Most web apps, APIs, and SaaS products don't need enterprise HA. They need "good enough" HA at a price they can afford. That's Failover.
 
 ## When to Use Failover
 
