@@ -58,6 +58,26 @@ Failover: $0 (open source) + uses infrastructure you already have
 | **Flapping Issues** | Common | Common | **Eliminated** |
 | **Incident Reports** | Manual | Manual | **Auto to Slack/Discord** |
 
+## What Engineers Are Saying About Traditional Failover
+
+Real problems from the field:
+
+> "Active-active setups risk race conditions and complexity, while active-passive can lead to downtime and data loss if replication lags. Teams overestimate availability without understanding these trade-offs."  
+> — **Raul Junco, System Design Expert**
+
+> "Scaling from single-machine to distributed setups spikes outage risks due to config errors and interconnect failures—a 'death valley' in reliability."  
+> — **DHH, Basecamp Co-founder**
+
+> "If a failover playbook fails midway, you're left in a hybrid state (some updated, some not), birthing outages from config drift."  
+> — **Malik Ahmad, DevOps Engineer**
+
+> "Multiple simultaneous node failures at scale demand careful replication—otherwise quorum latency or saturation hits hard."  
+> — **Sriram Subramanian, Database Engineer**
+
+**The common theme:** Traditional failover adds complexity that creates NEW failure modes.
+
+**Failover's approach:** Stateless proxy = no replication, no config drift, no race conditions. Just instant routing.
+
 ## When to Use Failover
 
 **✅ Perfect for:**
