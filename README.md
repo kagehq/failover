@@ -116,12 +116,12 @@ That's it, no config files, no setup. The container runs, and traffic is proxied
 
 ## ASCII Diagram
 
-BEFORE Failover Proxy
+### BEFORE Failover Proxy
 ------------------------------
  User  →  DNS  →  Primary App
                    (Down = ❌ downtime)
 
-AFTER Failover Proxy
+### AFTER Failover Proxy
 ------------------------------
  User  →  DNS  →  Failover Proxy
                         │
@@ -130,16 +130,9 @@ AFTER Failover Proxy
    Primary App (healthy ✅)     Backup (S3/CloudFront, etc.)
          (Down = traffic auto-fails here ✅)
 
-## Auto Incident Reports ✅
+## Auto Incident Reports
 
 Failover automatically sends detailed incident reports when failover events occur. Get notified instantly on Slack, Discord, or any webhook-compatible service when your primary service fails or recovers.
-
-### Features
-- 🚨 **Instant Alerts**: Real-time notifications when failover occurs
-- ✅ **Recovery Notifications**: Get notified when primary service recovers
-- ⏱️ **Downtime Tracking**: Automatically calculates and reports downtime duration
-- 📊 **Rich Details**: Includes fail count, timestamps, URLs, and error messages
-- 🎨 **Formatted Messages**: Beautiful, color-coded notifications for Slack and Discord
 
 ### Quick Setup
 
@@ -203,7 +196,7 @@ Details: Primary service has recovered and is now healthy. Traffic restored to p
 4. Use with `--webhook-url` and `--webhook-format=discord`
 
 
-## One-Click Deploy ✅
+## One-Click Deploy
 
 Deploy Failover to production in minutes with zero configuration hassle.
 
@@ -212,17 +205,7 @@ Deploy Failover to production in minutes with zero configuration hassle.
 
 Click the button above, set your `PRIMARY_URL` and `BACKUP_URL` environment variables, and deploy instantly.
 
-### Fly.io
-```bash
-flyctl launch
-flyctl secrets set PRIMARY_URL=https://yourapp.com BACKUP_URL=https://backup.s3.amazonaws.com
-flyctl deploy
-```
-
-### Render
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
-
-**See [deploy/DEPLOY.md](deploy/DEPLOY.md) for complete deployment guides including:**
+**See [deploy/DEPLOY.md](deploy/DEPLOY.md) for complete deployment guides and more options**
 
 ### Quick Deploy Script
 The script will guide you through deploying to your chosen platform with automatic configuration.
