@@ -22,6 +22,58 @@ Downtime isn’t just an inconvenience — it destroys trust, revenue, and SLAs.
 
 If it happens to them, it can happen to you.
 
+## The Problem with Traditional Failover
+
+Enterprise failover systems have critical flaws that cause more problems than they solve:
+
+**❌ Expensive** - Triple your infrastructure costs for redundancy, testing, and maintenance  
+**❌ Complex Setup** - Active-active/active-passive configs lead to race conditions and misconfigurations  
+**❌ Downtime During Switchover** - "Flapping" between primary/backup causes repeated outages  
+**❌ Data Loss Risk** - Replication lag means lost writes during failure  
+**❌ Network Dependencies** - Latency, DNS issues, and misconfigs break handoffs  
+**❌ Hardware Failures** - BSODs, VM freezes, resource contention brick entire clusters  
+
+**Failover solves this differently:**
+
+✅ **Zero Infrastructure Duplication** - Use existing backup (S3, CDN, static site, secondary region)  
+✅ **Sub-Second Switchover** - No flapping, instant routing change at the proxy layer  
+✅ **No Data Loss Risk** - Stateless proxy, no replication lag to worry about  
+✅ **Simple Setup** - One command, no cluster configs or coordination required  
+✅ **Works with Any Backend** - Primary = your app, Backup = literally anything that serves HTTP  
+
+**Cost comparison:**  
+Traditional failover: $50K+ for complex HA clusters + ongoing maintenance  
+Failover: $0 (open source) + uses infrastructure you already have
+
+## Failover vs Traditional HA Solutions
+
+| Feature | AWS Route53 Failover | Kubernetes HA | **Failover** |
+|---------|---------------------|---------------|--------------|
+| **Setup Time** | Hours-Days | Days-Weeks | **30 seconds** |
+| **Monthly Cost** | $50-500 | $500-5K | **$0 (OSS)** |
+| **Infrastructure Duplication** | Required | Required | **Not Required** |
+| **Switchover Time** | 60-180 seconds | 30-90 seconds | **< 1 second** |
+| **Data Loss Risk** | Replication lag | Replication lag | **Zero (stateless)** |
+| **Complexity** | High | Very High | **One command** |
+| **Flapping Issues** | Common | Common | **Eliminated** |
+| **Incident Reports** | Manual | Manual | **Auto to Slack/Discord** |
+
+## When to Use Failover
+
+**✅ Perfect for:**
+- Indie hackers who can't afford $5K/mo Kubernetes clusters
+- Startups that need high availability without infrastructure duplication
+- APIs that can failover to cached responses (S3, CloudFront, CDN)
+- Teams tired of debugging race conditions in active-active setups
+- Anyone who wants incident reports without manual post-mortems
+- Web apps that can serve static/cached content during primary outages
+
+**❌ Not ideal for:**
+- Stateful services requiring real-time write replication (use proper DB clustering)
+- Sub-millisecond latency requirements (enterprise HA better)
+- Applications that absolutely cannot tolerate brief read-only mode
+
+**The sweet spot:** Web apps, APIs, microservices where serving cached/static content during primary outages is acceptable.
 
 ## Community & Support
 
