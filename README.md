@@ -1,15 +1,14 @@
 # Failover
 
-Auto-failover proxy with instant Slack/Discord alerts. Deploy in 30 seconds.
-
 A tiny reverse proxy that sits in front of your app or API and makes downtime invisible. Routes traffic to your primary service, fails over instantly to backup when things break, auto-recovers, and posts incident reports to Slack/Discord automatically.
 
 ## What Failover Does
 
-- **Auto Incident Reports** - Get Slack/Discord notifications with detailed timelines when failover happens. Zero effort post-mortems.
-- **30-Second Deploy** - One-click deployment to Render, Railway, Fly.io. No DevOps knowledge required.
-- **Instant Failover** - Sub-second switching to backup. Your users never see downtime.
-- **Zero Config** - Works out of the box. Just point it at your primary and backup URLs.
+- Routes traffic to your primary service.
+- Continuously health-checks it.
+- If it fails → instantly routes traffic to your backup (S3, static copy, or secondary region).
+- Automatically recovers back when primary is healthy.
+- Get Slack/Discord notifications with detailed timelines when failover happens. Zero effort post-mortems.
 
 Your users keep seeing your site. You keep your SLA. Downtime becomes invisible.
 
@@ -39,20 +38,6 @@ Join our Discord community for discussions, support, and updates:
 
 ```bash
 curl -L https://raw.githubusercontent.com/kagehq/failover/main/install.sh | bash
-```
-
-**Or download manually for your platform:**
-
-```bash
-# Linux & macOS (choose your architecture)
-curl -L https://github.com/kagehq/failover/releases/latest/download/failover-linux-x86_64 -o failover      # Linux x86_64
-curl -L https://github.com/kagehq/failover/releases/latest/download/failover-linux-aarch64 -o failover    # Linux ARM64
-curl -L https://github.com/kagehq/failover/releases/latest/download/failover-macos-x86_64 -o failover     # macOS Intel
-curl -L https://github.com/kagehq/failover/releases/latest/download/failover-macos-aarch64 -o failover    # macOS Apple Silicon
-chmod +x failover
-
-# Windows
-curl -L https://github.com/kagehq/failover/releases/latest/download/failover-windows-x86_64.exe -o failover.exe
 ```
 
 Then run:
@@ -113,22 +98,6 @@ That's it, no config files, no setup. The container runs, and traffic is proxied
 ```json
   { "on_backup": true, "since_unix": 1738512461, "primary": "...", "backup": "..." }
 ```
-
-## ASCII Diagram
-
-### BEFORE Failover Proxy
-------------------------------
- User  →  DNS  →  Primary App
-                   (Down = ❌ downtime)
-
-### AFTER Failover Proxy
-------------------------------
- User  →  DNS  →  Failover Proxy
-                        │
-         ┌──────────────┴───────────────┐
-         ▼                              ▼
-   Primary App (healthy ✅)     Backup (S3/CloudFront, etc.)
-         (Down = traffic auto-fails here ✅)
 
 ## Auto Incident Reports
 
@@ -273,14 +242,6 @@ Run the comprehensive test suite:
 ```bash
 ./verify.sh
 ```
-
-This tests:
-- **Basic Functionality**: Primary routing, automatic failover, recovery
-- **Health Endpoints**: Health and state endpoint validation
-- **HTTP Methods**: GET, POST, PUT, DELETE request handling
-- **Request Processing**: Body handling and header forwarding
-- **Configuration**: JSON logging and config file loading
-- **Production Readiness**: All edge cases and error scenarios
 
 
 ## License
