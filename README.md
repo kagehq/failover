@@ -115,23 +115,6 @@ Real problems from the field:
 
 **The reality:** Most web apps, APIs, and SaaS products don't need enterprise HA. They need "good enough" HA at a price they can afford. That's Failover.
 
-## When to Use Failover
-
-**✅ Perfect for:**
-- Indie hackers who can't afford $5K/mo Kubernetes clusters
-- Startups that need high availability without infrastructure duplication
-- APIs that can failover to cached responses (S3, CloudFront, CDN)
-- Teams tired of debugging race conditions in active-active setups
-- Anyone who wants incident reports without manual post-mortems
-- Web apps that can serve static/cached content during primary outages
-
-**❌ Not ideal for:**
-- Stateful services requiring real-time write replication (use proper DB clustering)
-- Sub-millisecond latency requirements (enterprise HA better)
-- Applications that absolutely cannot tolerate brief read-only mode
-
-**The sweet spot:** Web apps, APIs, microservices where serving cached/static content during primary outages is acceptable.
-
 ## Community & Support
 
 Join our Discord community for discussions, support, and updates:
