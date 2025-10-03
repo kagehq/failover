@@ -114,44 +114,28 @@ Real problems from the field:
 | **Cost** | $50K+/year | $0 (OSS) |
 | **Complexity** | Very High | One command |
 | **Setup Time** | Weeks | 30 seconds |
-| **Good Enough For** | Banks, stock exchanges | Startups, SaaS, APIs, web apps |
+| **Great For** | Banks, stock exchanges | Startups, SaaS, APIs, web apps |
 
 **Choose Failover if:**
-- You're a startup/indie hacker without $50K+ for HA infrastructure
-- Your users can tolerate brief read-only mode during primary outages
+- You're a startup/indie hacker without $50K+ for HA infrastructure or $5K/mo Kubernetes clusters
+- Your users can tolerate brief read-only mode during primary outages. Web apps that can serve static/cached content during primary outages
+- Your APIs that can failover to cached responses (S3, CloudFront, CDN)
 - You need HA NOW without weeks of setup
-- "Pretty good" uptime is acceptable (vs. "absolutely perfect")
+- Your team is tired of debugging race conditions in active-active setups
+- Anyone who wants incident reports without manual post-mortems
 
 **Choose Enterprise HA if:**
 - You're a bank, stock exchange, or medical device company
-- You have compliance requirements for 99.999% uptime
-- You absolutely need real-time writes during any failure scenario
+- You have compliance requirements for 99.999% uptime (Coming soon)
+- You absolutely need real-time writes during any failure scenario (Coming soon)
+- You have stateful services requiring real-time write replication (use proper DB clustering)
+- Your applications that absolutely cannot tolerate brief read-only mode
 - You have the budget and team to manage complex distributed systems
+- Sub-millisecond latency requirements (enterprise HA better)
 
 **The reality:** Most web apps, APIs, and SaaS products don't need enterprise HA. They need "really good" HA at a price they can afford. That's Failover.
 
-## When to Use Failover
-
-**✅ Perfect for:**
-- Indie hackers who can't afford $5K/mo Kubernetes clusters
-- Startups that need high availability without infrastructure duplication
-- APIs that can failover to cached responses (S3, CloudFront, CDN)
-- Teams tired of debugging race conditions in active-active setups
-- Anyone who wants incident reports without manual post-mortems
-- Web apps that can serve static/cached content during primary outages
-
-**❌ Not ideal for:**
-- Stateful services requiring real-time write replication (use proper DB clustering)
-- Sub-millisecond latency requirements (enterprise HA better)
-- Applications that absolutely cannot tolerate brief read-only mode
-
 **The sweet spot:** Web apps, APIs, microservices where serving cached/static content during primary outages is acceptable.
-
-## Community & Support
-
-Join our Discord community for discussions, support, and updates:
-
-[![Discord](https://img.shields.io/badge/Discord-Join%20our%20community-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/KqdBcqRk5E)
 
 
 ## Quick Start
@@ -366,16 +350,3 @@ Run the comprehensive test suite:
 ```bash
 ./verify.sh
 ```
-
-
-## License
-
-This project is licensed under the FSL-1.1-MIT License. See the LICENSE file for details.
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request

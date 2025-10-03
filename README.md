@@ -60,8 +60,8 @@ curl -L https://raw.githubusercontent.com/kagehq/failover/main/install.sh | bash
 - You need HA NOW without weeks of setup
 
 **❌ Not ideal if:**
-- You're a bank with 99.999% compliance requirements
-- You need real-time writes during any failure scenario
+- You're a bank with 99.999% compliance requirements (Coming soon)
+- You need real-time writes during any failure scenario (Coming soon)
 - You have budget for enterprise HA solutions
 
 **The reality:** 80% of web apps don't need enterprise HA. They need solid, affordable failover. [Read the honest trade-offs →](DETAILED.md#trade-offs)
